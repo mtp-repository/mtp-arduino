@@ -1,5 +1,5 @@
 /*
-  ReadAnalogVoltage
+  ReadAnalogVoltageWithLed
 
   Reads an analog input on pin 0, converts it to voltage, and prints the result to the Serial Monitor.
   Graphical representation is available using Serial Plotter (Tools > Serial Plotter menu).
@@ -8,6 +8,7 @@
   This example code is in the public domain.
 
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/ReadAnalogVoltage
+  https://www.youtube.com/watch?v=xb_0QxeInDs
 */
 #define LED 9
 #define pot A0
