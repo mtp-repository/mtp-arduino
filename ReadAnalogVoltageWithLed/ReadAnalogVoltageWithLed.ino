@@ -10,7 +10,7 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/ReadAnalogVoltage
   https://www.youtube.com/watch?v=xb_0QxeInDs
 */
-#define LED 9
+#define LED 13
 #define pot A0
 
 int potReading = 0;

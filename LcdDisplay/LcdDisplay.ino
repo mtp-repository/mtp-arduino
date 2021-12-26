@@ -1,132 +1,143 @@
-/*
-  LiquidCrystal Library - Hello World
-
- Demonstrates the use a 16x2 LCD display.  The LiquidCrystal
- library works with all LCD displays that are compatible with the
- Hitachi HD44780 driver. There are many of them out there, and you
- can usually tell them by the 16-pin interface.
-
- This sketch prints "Hello World!" to the LCD
- and shows the time.
-
-  The circuit:
- * LCD RS pin to digital pin 12
- * LCD Enable pin to digital pin 11
- * LCD D4 pin to digital pin 5
- * LCD D5 pin to digital pin 4
- * LCD D6 pin to digital pin 3
- * LCD D7 pin to digital pin 2
- * LCD R/W pin to ground
- * LCD VSS pin to ground
- * LCD VCC pin to 5V
- * 10K resistor:
- * ends to +5V and ground
- * wiper to LCD VO pin (pin 3)
-
- Library originally added 18 Apr 2008
- by David A. Mellis
- library modified 5 Jul 2009
- by Limor Fried (http://www.ladyada.net)
- example added 9 Jul 2009
- by Tom Igoe
- modified 22 Nov 2010
- by Tom Igoe
- modified 7 Nov 2016
- by Arturo Guadalupi
-
- This example code is in the public domain.
-
- http://www.arduino.cc/en/Tutorial/LiquidCrystalHelloWorld
- LCD 1602 with I2C bus 
- - https://www.youtube.com/watch?v=wEbGhYjn4QI
- - https://dronebotworkshop.com/lcd-displays-arduino/
-
-Steps I have to do:
- - Use i2cScanner (in this repo), copy and paste i2c_addr
- - Download updated library LiquidCrystal_V1.2.1.zip and install, included in lib subdirectory
- - Once installed open up library, open file I2CIO.cpp - change line 35 from '<../Wire/Wire.h>' to <Wire.h>
+/*  
+  L298N Motor Demonstration
+  L298N-Motor-Demo.ino
+  Demonstrates functions of L298N Motor Controller
+  
+  DroneBot Workshop 2017
+  http://dronebotworkshop.com
 */
+  
 
-// Include Wire Library for I2C
-#include <Wire.h>
-// Include NewLiquidCrystal Library for I2C
-#include <LiquidCrystal_I2C.h>
+// Motor A
 
-// Define LCD pinout
-const int  en = 2, rw = 1, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
+int enA = 5;
+int in1 = 1;
+int in2 = 2;
 
-// Define I2C Address - change if reqiuired
-const int i2c_addr = 0x27;
+// Motor B
 
-LiquidCrystal_I2C lcd(i2c_addr, en, rw, rs, d4, d5, d6, d7, bl, POSITIVE);
+int enB = 6;
+int in3 = 8;
+int in4 = 9;
 
 void setup()
+
 {
 
-  // Set display type as 16 char, 2 rows
-  lcd.begin(16,2);
-  
-  // Print on first row
-  lcd.setCursor(0,0);
-  lcd.print("Dinno's world!");
-  
-  // Wait 1 second
-  delay(1000);
-  
-  // Print on second row
-  lcd.setCursor(0,1);
-  lcd.print("Enjoy the ride");
-  
-  // Wait 8 seconds
-  delay(2000);
-  
-  // Clear the display
-  lcd.clear();
+  // Set all the motor control pins to outputs
+
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+
 }
 
+void demoOne()
+
+{
+
+  // This function will run the motors in both directions at a fixed speed
+
+  // Turn on motor A
+
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+
+  // Set speed to 200 out of possible range 0~255
+
+  analogWrite(enA, 200);
+
+  // Turn on motor B
+
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+
+  // Set speed to 200 out of possible range 0~255
+
+  analogWrite(enB, 200);
+
+  delay(2000);
+
+  // Now change motor directions
+
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);  
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH); 
+
+  delay(2000);
+
+  // Now turn off motors
+
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);  
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+
+}
+
+void demoTwo()
+
+{
+
+  // This function will run the motors across the range of possible speeds
+  // Note that maximum speed is determined by the motor itself and the operating voltage
+
+  // Turn on motors
+
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);  
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH); 
+
+  // Accelerate from zero to maximum speed
+
+  for (int i = 0; i < 256; i++)
+
+  {
+
+    analogWrite(enA, i);
+    analogWrite(enB, i);
+
+    delay(20);
+
+  } 
+
+  // Decelerate from maximum speed to zero
+
+  for (int i = 255; i >= 0; --i)
+
+  {
+
+    analogWrite(enA, i);
+    analogWrite(enB, i);
+
+    delay(20);
+
+  } 
+
+  // Now turn off motors
+
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);  
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);  
+
+}
 
 void loop()
-{
-  
-  // Demo 1 - flash backlight
-//  lcd.setCursor(0,0);
-//  lcd.print("Backlight demo");
-//  lcd.setCursor(0,1);
-//  lcd.print("Flash 4 times");
-//  
-//  delay(3000);
-//  lcd.clear();
-//  
-//  // Flash backlight 4 times
-//  for(int i = 0; i< 4; i++)
-//    {
-//    lcd.backlight();
-//    delay(250);
-//    lcd.noBacklight();
-//    delay(250);
-//    }
-//
-//  // Turn backlight back on
-//  lcd.backlight();
-    
-  // Demo 2 - scroll
-  lcd.setCursor(0,0);
-  lcd.print("Announcement!!!");
-  lcd.setCursor(0,1);
-  lcd.autoscroll();
-  
-  // print string
-  for (char x  : "Everything is awesome!!! everything is cool!!!") {
-    lcd.print(x);
-    delay(300);
-  }
-  // turn off automatic scrolling
-  lcd.noAutoscroll();
 
-  // clear screen 
-  lcd.clear();
-  
-  //Delay
+{
+
+  demoOne();
+
+  delay(1000);
+
+  demoTwo();
+
   delay(1000);
 
 }
