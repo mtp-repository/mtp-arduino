@@ -3,6 +3,11 @@
 */
 #define enA 5
 #define in1 1
+#define in1 1
+#define in1 1
+#define in1 1
+#define in1 1
+
 #define in2 8
 #define button 4
 int rotDirection = 0;
