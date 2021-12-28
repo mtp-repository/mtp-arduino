@@ -8,6 +8,9 @@
   http://dronebotworkshop.com
 */
 
+// Include packages
+#include <Servo.h>
+
 // Constants for Interrupt Pins
 
 // Constant for steps in disk
@@ -24,6 +27,15 @@ int in2 = 9;
 const int pingPin = 5; // Trigger Pin of Ultrasonic Sensor
 const int echoPin = 4; // Echo Pin of Ultrasonic Sensor
 
+// PIN for servo
+int servoPin = 10;
+
+// Constant vars
+int inchDistanceStop = 10;
+
+// Create a servo object 
+Servo Servo1;
+
 // Function to convert from centimeters to steps
 int CMtoSteps(float cm) {
 
@@ -39,7 +51,7 @@ int CMtoSteps(float cm) {
 }
 
 // Function to Move Forward
-void MoveForward(int steps, int mspeed) 
+void MoveForward() 
 {  
    // Set Motor A forward
    digitalWrite(in1, HIGH);
@@ -55,7 +67,7 @@ void MoveReverse()
 }
 
 // Function to Spin Right
-void SpinRight(int steps, int mspeed) 
+void SpinRight() 
 {  
    // Set Motor A reverse
   digitalWrite(in1, LOW); 
@@ -64,34 +76,32 @@ void SpinRight(int steps, int mspeed)
 }
 
 // Function to Spin Left
-void SpinLeft(int steps, int mspeed) 
+void SpinLeft() 
 {  
    // Set Motor A forward
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);   
 }
 
-void setup() 
-{ 
-  // Test Motor Movement  - Experiment with your own sequences here  
-  Serial.begin(9600); // Starting Serial Terminal
-  Serial.println("Start Car!");
-} 
+void servoLook0() {
+  Serial.println("Look 0 degrees");
+   // Make servo go to 0 degrees 
+   Servo1.write(0);
+   delay(200);
+}
 
+void servoLook90() {  
+   Serial.println("Look 90 degrees");
+   // Make servo go to 90 degrees 
+   Servo1.write(90);
+   delay(200);
+}
 
-void loop()
-{
-  Serial.println("Enter loop!");
-  // Put whatever you want here!
-  long distance = getDistanceInInch();
-  Serial.println("Distance: " + String(distance) + "inch");
-  if(distance > 5) {
-    MoveForward(CMtoSteps(50), 255);  // Forward half a metre at 255 speed
-  } else {
-    MoveReverse();
-  }
-
-  delay(1000);  // Wait one second
+void servoLook180() {
+  Serial.println("Look 180 degrees");
+   // Make servo go to 180 degrees 
+   Servo1.write(180);
+   delay(200);
 }
 
 long getDistanceInInch() {
@@ -113,4 +123,138 @@ long getDistanceInInch() {
 
 long microsecondsToInches(long microseconds) {
    return microseconds / 74 / 2;
+}
+
+void setup() 
+{ 
+  // Test Motor Movement  - Experiment with your own sequences here  
+  Serial.begin(9600); // Starting Serial Terminal
+  Serial.println("Start Car!");
+  Servo1.attach(servoPin);  
+
+  // Reset Servo to 90
+  servoLook90();
+} 
+
+void loop() {    
+  Serial.println("Start Loop");
+  
+  // Move forward if 
+  long distance = getDistanceInInch();
+  while(distance > inchDistanceStop) {
+    Serial.println("Keep moving forward");
+    MoveForward();
+    delay(300);
+    distance = getDistanceInInch();
+  }
+
+  // Stop
+  MoveReverse();
+  Serial.println("STOOOOOOOOP");
+  delay(1000);
+  
+  // If distance is D <= inchDistanceStop
+  // Evaluate left and right distance
+
+  // Look right
+  servoLook0();
+  long rightDistance = getDistanceInInch();
+  Serial.println("Distance 0deg: " + String(rightDistance));
+  delay(1000);
+
+  // Get straight distance
+  servoLook90();
+  long distance90 = getDistanceInInch();
+  Serial.println("Distance 90deg: " + String(distance90));
+  delay(1000);
+
+  // Look right
+  servoLook180();
+  long leftDistance = getDistanceInInch();
+  Serial.println("Distance 180deg: " + String(leftDistance));
+  delay(1000);
+
+  servoLook90();
+
+  // Reposition and decide which has more space
+  if (distance90 > rightDistance && distance90 < leftDistance && distance90 > inchDistanceStop) {
+    Serial.println("Keep moving forward");
+    MoveForward();
+    delay(300);
+  } else if (distance90 < rightDistance && leftDistance < rightDistance && rightDistance > inchDistanceStop) {
+    // Right has more space
+    Serial.println("Turn Right");
+    SpinRight();
+    delay(200);
+  } else if (distance90 < leftDistance && rightDistance < leftDistance && leftDistance > inchDistanceStop) {
+    // Left has more space
+    Serial.println("Turn Left");
+    SpinLeft();
+    delay(200);
+  } else {
+    // U turn
+    Serial.println("U Turn");
+    SpinLeft();
+    delay(600);
+  }
+
+  // Reset Servo to 90
+  Serial.println("Reset Servo");
+  servoLook90();
+}
+
+void oldloop() {
+   Serial.println("Enter loop!");
+  // Put whatever you want here!
+  long distance = getDistanceInInch();
+  Serial.println("Distance: " + String(distance) + "inch");
+  if(distance >= 20) {
+    Serial.println("Forward");
+    MoveForward();  // Forward half a metre at 255 speed
+    delay(400);
+  } else {
+    Serial.println("Stop");
+    MoveReverse();
+
+    Serial.println("Look 90");
+    servoLook90();
+    long distance90 = getDistanceInInch();
+    delay(1000);
+    Serial.println("Look 0");
+    servoLook0();    
+    long distance0 = getDistanceInInch();
+    delay(1000);
+    Serial.println("Look 180");
+    servoLook180();
+    long distance180 = getDistanceInInch();
+    delay(1000);
+    Serial.println("distance 0 = " + String(distance0) + " <--- > distance 180 = " + String(distance180));
+
+    if ((distance90 > distance180) && (distance90 > distance0) && (distance90 >= 20)) {
+      Serial.println("Forward");
+      MoveForward();  // Forward half a metre at 255 speed
+      delay(400);
+    } else if ((distance0 > distance90) && (distance0 > distance90) && (distance0 >= 20)) {
+      Serial.println("Turn Right");
+      SpinRight();
+      delay(400);
+    } else if ((distance180 > distance0) && (distance180 > distance90) && (distance180 >= 20)) {
+      Serial.println("Turn Left");
+      SpinLeft();
+      delay(400);
+    } else {
+      MoveReverse();
+      if (distance0 > distance180) {
+        Serial.println("Uturn right");
+        SpinRight();      
+      } else {
+        Serial.println("Uturn left");
+        SpinLeft();  
+      }      
+      delay(700);
+    }    
+    // Reset - look forward
+    servoLook90();
+    
+  }
 }
