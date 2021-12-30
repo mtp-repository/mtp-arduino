@@ -1,10 +1,17 @@
 /*  
-  Robot Car with Speed Sensor Demonstration
-  RobotCarSpeedSensorDemo.ino
-  Demonstrates use of Hardware Interrupts
-  to control motors on Robot Car
-  
-  DroneBot Workshop 2017
+  Wall-e Version 1.0
+
+  Components
+    - Arduino Uno
+    - Car Chassis 
+    - 2 way motor & 16 way servo
+    - 2 DC motor
+    - 1 Servo motor
+    - 1 Ultrasonic Sensor
+    - 4 AA batteries    
+    - 1 powerbank
+
+  References:
   http://dronebotworkshop.com
 */
 
