@@ -136,7 +136,7 @@ void setup()
   servoLook90();
 } 
 
-void loop() {    
+void loop() {
   Serial.println("Start Loop");
   
   // Move forward if 
@@ -160,19 +160,19 @@ void loop() {
   servoLook0();
   long rightDistance = getDistanceInInch();
   Serial.println("Distance 0deg: " + String(rightDistance));
-  delay(1000);
+  delay(500);
 
   // Get straight distance
   servoLook90();
   long distance90 = getDistanceInInch();
   Serial.println("Distance 90deg: " + String(distance90));
-  delay(1000);
+  delay(500);
 
   // Look right
   servoLook180();
   long leftDistance = getDistanceInInch();
   Serial.println("Distance 180deg: " + String(leftDistance));
-  delay(1000);
+  delay(500);
 
   servoLook90();
 
@@ -180,22 +180,22 @@ void loop() {
   if (distance90 > rightDistance && distance90 < leftDistance && distance90 > inchDistanceStop) {
     Serial.println("Keep moving forward");
     MoveForward();
-    delay(300);
+    delay(200);
   } else if (distance90 < rightDistance && leftDistance < rightDistance && rightDistance > inchDistanceStop) {
     // Right has more space
     Serial.println("Turn Right");
     SpinRight();
-    delay(200);
+    //delay(150);
   } else if (distance90 < leftDistance && rightDistance < leftDistance && leftDistance > inchDistanceStop) {
     // Left has more space
     Serial.println("Turn Left");
     SpinLeft();
-    delay(200);
+    delay(150);
   } else {
     // U turn
     Serial.println("U Turn");
     SpinLeft();
-    delay(600);
+    delay(500);
   }
 
   // Reset Servo to 90
