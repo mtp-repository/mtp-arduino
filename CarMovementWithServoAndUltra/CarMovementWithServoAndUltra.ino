@@ -22,6 +22,7 @@ const float wheeldiameter = 66.10; // Wheel diameter in millimeters, change if d
 // PINS for motor
 int in1 = 6;
 int in2 = 9;
+int enable = 1;
 
 // PINS for ultra sensor
 const int pingPin = 5; // Trigger Pin of Ultrasonic Sensor
@@ -31,7 +32,7 @@ const int echoPin = 4; // Echo Pin of Ultrasonic Sensor
 int servoPin = 10;
 
 // Constant vars
-int inchDistanceStop = 10;
+int inchDistanceStop = 20;
 
 // Create a servo object 
 Servo Servo1;
@@ -136,22 +137,36 @@ void setup()
   servoLook90();
 } 
 
+void loopTest() {
+  Serial.println("Start Loop");
+  Serial.println("enable " + String(enable));
+  if (enable == 1) {
+    MoveForward();
+    delay(170);
+    enable = 0;
+    MoveReverse();
+  }
+  Serial.println("enable " + String(enable));
+  Serial.println("End Loop");  
+}
+
 void loop() {
   Serial.println("Start Loop");
   
   // Move forward if 
+  servoLook90();
   long distance = getDistanceInInch();
   while(distance > inchDistanceStop) {
     Serial.println("Keep moving forward");
     MoveForward();
-    delay(300);
+    delay(170);
     distance = getDistanceInInch();
   }
 
   // Stop
   MoveReverse();
   Serial.println("STOOOOOOOOP");
-  delay(1000);
+  delay(170);
   
   // If distance is D <= inchDistanceStop
   // Evaluate left and right distance
@@ -180,27 +195,29 @@ void loop() {
   if (distance90 > rightDistance && distance90 < leftDistance && distance90 > inchDistanceStop) {
     Serial.println("Keep moving forward");
     MoveForward();
-    delay(200);
+    delay(170);
   } else if (distance90 < rightDistance && leftDistance < rightDistance && rightDistance > inchDistanceStop) {
     // Right has more space
     Serial.println("Turn Right");
     SpinRight();
-    //delay(150);
+    //delay(250); // left motor seems slower than the right motor
   } else if (distance90 < leftDistance && rightDistance < leftDistance && leftDistance > inchDistanceStop) {
     // Left has more space
     Serial.println("Turn Left");
     SpinLeft();
-    delay(150);
+    delay(180);
   } else {
     // U turn
     Serial.println("U Turn");
     SpinLeft();
-    delay(500);
+    delay(300);
   }
 
   // Reset Servo to 90
   Serial.println("Reset Servo");
   servoLook90();
+  MoveReverse();
+  delay(200);
 }
 
 void oldloop() {
