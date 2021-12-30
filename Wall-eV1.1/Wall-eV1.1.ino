@@ -16,11 +16,20 @@
     - 1 powerbank
 
   Functionality:
+  V1.0
     - Movement
         - Forward,
         - Right
         - Left
     - Check distance of front, left and right thru ultrasonic sensor and servo motor.
+   V1.1
+    - WIFI controller
+    - Infra distance
+      - Add accuracy, help ultrasonic sensor
+    - LCD
+      - Show mode 
+        - Auto
+        - Manual - driven by wifi controller
     
 
   References:
