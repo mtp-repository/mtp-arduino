@@ -25,7 +25,7 @@
    V1.1
     - WIFI controller
     - Infra distance
-      - Add accuracy, help ultrasonic sensor
+      - Add accuracy, help ultrasensor
     - LCD
       - Show mode 
         - Auto
@@ -165,19 +165,6 @@ void setup()
   servoLook90();
 } 
 
-void loopTest() {
-  Serial.println("Start Loop");
-  Serial.println("enable " + String(enable));
-  if (enable == 1) {
-    MoveForward();
-    delay(170);
-    enable = 0;
-    MoveReverse();
-  }
-  Serial.println("enable " + String(enable));
-  Serial.println("End Loop");  
-}
-
 void loop() {
   Serial.println("Start Loop");
   
@@ -246,60 +233,4 @@ void loop() {
   servoLook90();
   MoveReverse();
   delay(200);
-}
-
-void oldloop() {
-   Serial.println("Enter loop!");
-  // Put whatever you want here!
-  long distance = getDistanceInInch();
-  Serial.println("Distance: " + String(distance) + "inch");
-  if(distance >= 20) {
-    Serial.println("Forward");
-    MoveForward();  // Forward half a metre at 255 speed
-    delay(400);
-  } else {
-    Serial.println("Stop");
-    MoveReverse();
-
-    Serial.println("Look 90");
-    servoLook90();
-    long distance90 = getDistanceInInch();
-    delay(1000);
-    Serial.println("Look 0");
-    servoLook0();    
-    long distance0 = getDistanceInInch();
-    delay(1000);
-    Serial.println("Look 180");
-    servoLook180();
-    long distance180 = getDistanceInInch();
-    delay(1000);
-    Serial.println("distance 0 = " + String(distance0) + " <--- > distance 180 = " + String(distance180));
-
-    if ((distance90 > distance180) && (distance90 > distance0) && (distance90 >= 20)) {
-      Serial.println("Forward");
-      MoveForward();  // Forward half a metre at 255 speed
-      delay(400);
-    } else if ((distance0 > distance90) && (distance0 > distance90) && (distance0 >= 20)) {
-      Serial.println("Turn Right");
-      SpinRight();
-      delay(400);
-    } else if ((distance180 > distance0) && (distance180 > distance90) && (distance180 >= 20)) {
-      Serial.println("Turn Left");
-      SpinLeft();
-      delay(400);
-    } else {
-      MoveReverse();
-      if (distance0 > distance180) {
-        Serial.println("Uturn right");
-        SpinRight();      
-      } else {
-        Serial.println("Uturn left");
-        SpinLeft();  
-      }      
-      delay(700);
-    }    
-    // Reset - look forward
-    servoLook90();
-    
-  }
 }
