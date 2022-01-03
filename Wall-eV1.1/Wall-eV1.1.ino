@@ -23,14 +23,8 @@
         - Left
     - Check distance of front, left and right thru ultrasonic sensor and servo motor.
    V1.1
-    - WIFI controller
     - Infra distance
       - Add accuracy, help ultrasensor
-    - LCD
-      - Show mode 
-        - Auto
-        - Manual - driven by wifi controller
-    
 
   References:
   http://dronebotworkshop.com
@@ -51,6 +45,10 @@ const float wheeldiameter = 66.10; // Wheel diameter in millimeters, change if d
 int in1 = 6;
 int in2 = 9;
 int enable = 1;
+
+// PINS for IR
+int IRSensor1 = 2; // Right IR sensor
+int IRSensor2 = 3; // Left IR sensor
 
 // PINS for ultra sensor
 const int pingPin = 5; // Trigger Pin of Ultrasonic Sensor
@@ -161,6 +159,10 @@ void setup()
   Serial.println("Start Car!");
   Servo1.attach(servoPin);  
 
+  // Set IR
+  pinMode (IRSensor1, INPUT); // sensor pin INPUT
+  pinMode (IRSensor2, INPUT); // sensor pin INPUT
+
   // Reset Servo to 90
   servoLook90();
 } 
@@ -207,15 +209,29 @@ void loop() {
   servoLook90();
 
   // Reposition and decide which has more space
-  if (distance90 > rightDistance && distance90 < leftDistance && distance90 > inchDistanceStop) {
+  int statusSensor1 = digitalRead (IRSensor1);
+  Serial.println("IR 1: " + String(statusSensor1));
+  int statusSensor2 = digitalRead (IRSensor2);
+  Serial.println("IR 2:" + String(statusSensor2));
+  
+  if (statusSensor1 < 1 || statusSensor2 < 1) {
+    MoveReverse();
+    if (statusSensor1 < 1) {
+      SpinLeft();
+    } else {
+      SpinRight();      
+    }
+
+    delay(300);
+  } else if (distance90 > rightDistance && distance90 > leftDistance && distance90 > inchDistanceStop) {
     Serial.println("Keep moving forward");
     MoveForward();
-    delay(170);
+    delay(180);
   } else if (distance90 < rightDistance && leftDistance < rightDistance && rightDistance > inchDistanceStop) {
     // Right has more space
     Serial.println("Turn Right");
     SpinRight();
-    //delay(500); // left motor seems slower than the right motor
+    delay(180); // left motor seems slower than the right motor
   } else if (distance90 < leftDistance && rightDistance < leftDistance && leftDistance > inchDistanceStop) {
     // Left has more space
     Serial.println("Turn Left");
@@ -223,8 +239,13 @@ void loop() {
     delay(180);
   } else {
     // U turn
-    Serial.println("U Turn");
-    SpinLeft();
+    if (rightDistance > leftDistance) {
+      Serial.println("U Turn to the right");
+      SpinRight();  
+    } else {
+      Serial.println("U Turn to the left");
+      SpinLeft();  
+    }    
     delay(300);
   }
 
