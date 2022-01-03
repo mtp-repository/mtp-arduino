@@ -10,18 +10,35 @@
     - Car Chassis 
     - L298N
     - 4 DC motor
-    - 1 powerbank
+    - 2 18650 battery
+    - 18650 battery shield
+    - LCD screen
+
+  Additional Steps
+    - Add library LiquidCrystal_I2C in LcdDisplay/lib/LiquidCrystal_V1.2.1.zip
+    - Open library I2CIO.cpp and change line 35 from '<../Wire/Wire.h>' to <Wire.h> 
 
   Functionality:
     - Movement
         - Forward,
         - Right
         - Left
-    - Check distance of front, left and right thru ultrasonic sensor and servo motor.
+    - Show status on LCD
+    - Battery are rechargable
+
+   Roadmap
+    - Infrared
+    - Tracking
+    - Buzzer
+    - WIFI     
+
+  Library
+    - 
     
 
   References:
   http://dronebotworkshop.com
+  DC Motor/ L298N - https://arduinogetstarted.com/tutorials/arduino-dc-motor
 */
 
 // Include Wire Library for I2C
