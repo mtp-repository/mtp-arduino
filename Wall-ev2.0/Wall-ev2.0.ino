@@ -80,7 +80,7 @@ void lcdInit() {
   // Set display type as 16 char, 2 rows
   lcd.begin(16,2);
 
-  lcdMsg("Dinno's world!", 0, 1000);
+  lcdMsg("Love you Cookie!", 0, 1000);
   lcdMsg("Enjoy the ride", 1, 1000);
 
   // Clear the display
@@ -94,71 +94,82 @@ void lcdMsg(String msg, int line ,int duration) {
   lcd.clear();
 }
 
-void demoOne()
-{
-  lcdMsg("Start Demo1", 1, 1000);
-  // this function will run the motors in both directions at a fixed speed
-  // turn on motor A
+void forward(int speed, int duration) {
+  lcdMsg("Forward", 0, 1000);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enA, speed);
+  
+  // turn on motor B
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enB, speed);
+  delay(duration);
+}
+
+void backward(int speed, int duration) {
+  lcdMsg("Backward", 0, 1000);
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   // set speed to 200 out of possible range 0~255
-  analogWrite(enA, 200);
+  analogWrite(enA, speed);
+  
   // turn on motor B
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
   // set speed to 200 out of possible range 0~255
-  analogWrite(enB, 200);
-  delay(2000);
-  // now change motor directions
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);  
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH); 
-  delay(2000);
-  // now turn off motors
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);  
+  analogWrite(enB, speed);
+  delay(duration);
+}
+
+
+void pause(int duration) {
+  lcdMsg("Pause: " + String(duration) + "ms", 0, 1000);
+  // turn off motor A
+  digitalWrite(in1, LOW);  
+  digitalWrite(in2, LOW);
+  analogWrite(enA, 0);
+  
+  // turn on motor B
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-
- lcdMsg("End Demo1", 1, 1000);
-}
-void demoTwo()
-{
-  lcdMsg("Start Demo2", 1, 1000);
+  analogWrite(enB, 0);
   
-  // this function will run the motors across the range of possible speeds
-  // note that maximum speed is determined by the motor itself and the operating voltage
-  // the PWM values sent by analogWrite() are fractions of the maximum speed possible 
-  // by your hardware
-  // turn on motors
+  delay(duration);
+}
+
+void left(int speed, int duration) {
+  lcdMsg("Turn Left", 0, 1000);
   digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);  
+  digitalWrite(in2, HIGH);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enA, speed);
+  
+  // turn on motor B
   digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH); 
-  // accelerate from zero to maximum speed
+  digitalWrite(in4, LOW);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enB, (speed/2));
+  
+  delay(duration);
+}
 
- for (int i = 0; i < 256; i++) { 
-  analogWrite(enA, i); 
-  analogWrite(enB, i); 
-  delay(20); 
-  } 
-// decelerate from maximum speed to zero 
-for (int i = 255; i > 0; --i)
-  {
-    analogWrite(enA, i);
-    analogWrite(enB, i);
-    delay(20);
-  } 
-
- 
-  // now turn off motors
+void right(int speed, int duration) {
+  lcdMsg("Turn Right", 0, 1000);
   digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);  
+  digitalWrite(in2, LOW);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enA, (speed/2));
+  
+  // turn on motor B
   digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);  
-
-  lcdMsg("End Demo2", 1, 1000);
+  digitalWrite(in4, HIGH);
+  // set speed to 200 out of possible range 0~255
+  analogWrite(enB, speed);
+  
+  delay(duration);
 }
 
 void setup()
@@ -171,8 +182,10 @@ void setup()
 
 void loop()
 {
-  demoOne();
-  delay(1000);
-  demoTwo();
+  forward(255, 2000);
+  backward(255, 2000);
+  pause(2000);
+  right(255, 3000);
+  left(255, 3000);
   delay(1000);
 }
