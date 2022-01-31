@@ -1,17 +1,35 @@
+/*  
+  WIFI ESP8266
+
+  Author
+    - Cenon Dinno Ebora III
+    - cenon4dno@gmail.com
+
+  Functionality:
+     
+
+  Library
+    - 
+    
+
+  References:
+  https://create.arduino.cc/projecthub/Niv_the_anonymous/esp8266-beginner-tutorial-project-6414c8
+
+*/
 #define BLYNK_PRINT Serial
 
 
-// #include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "8b8HqbDMRiM2oiyJQTQNEoIITiqaKped";
+char auth[] = "your auth token code from blynk app";
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-char ssid[] = "Doit_WiFi_977171";
-char pass[] = "";
+char ssid[] = "your wifi name";
+char pass[] = "your wifi password";
 
 void setup()
 {
