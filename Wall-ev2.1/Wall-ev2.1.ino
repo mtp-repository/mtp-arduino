@@ -67,7 +67,7 @@ int in4 = 6;
 
 // Enable features
 bool bMovement = false;
-bool bLcd = true;
+bool bLcd = false;
 bool bTracking = false;
 bool bBuzzer = false;
 bool bWifi = false;
@@ -87,14 +87,16 @@ void motorInit() {
 }
 
 void lcdInit() {
-  // Set display type as 16 char, 2 rows
-  lcd.begin(16,2);
-
-  lcdMsg("Love you Cookie!", 0, 1000);
-  lcdMsg("Enjoy the ride", 1, 1000);
-
-  // Clear the display
-  lcd.clear();
+  if (bLcd) {
+    // Set display type as 16 char, 2 rows
+    lcd.begin(16,2);
+  
+    lcdMsg("Love you Cookie!", 0, 1000);
+    lcdMsg("Enjoy the ride", 1, 1000);
+  
+    // Clear the display
+    lcd.clear();
+  }
 }
 
 void lcdMsg(String msg, int line ,int duration) {
