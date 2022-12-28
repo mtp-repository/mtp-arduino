@@ -47,6 +47,7 @@
   References:
   http://dronebotworkshop.com
   DC Motor/ L298N - https://arduinogetstarted.com/tutorials/arduino-dc-motor
+  ESP32 & Uno Comm: https://roboticadiy.com/send-data-from-arduino-to-nodemcu-and-nodemcu-to-arduino-via-serial-communication/
 */
 
 // Include Wire Library for I2C
@@ -230,10 +231,14 @@ void setup()
 
 void loop()
 {
-  forward(255, 2000);
-  backward(255, 2000);
-  pause(2000);
-  right(255, 3000);
-  left(255, 3000);
-  delay(1000);
+  //forward(255, 2000);
+  //backward(255, 2000);
+  //pause(2000);
+  //right(255, 3000);
+  //left(255, 3000);
+  //delay(1000);
+  if (Serial.available()) {
+    Serial.write(Serial.read());
+    lcdMsg(Serial.read(), 0, 2000);
+  }
 }
