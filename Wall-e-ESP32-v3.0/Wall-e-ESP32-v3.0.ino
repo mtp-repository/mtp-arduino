@@ -47,6 +47,9 @@
   References:
   http://dronebotworkshop.com
   DC Motor/ L298N - https://arduinogetstarted.com/tutorials/arduino-dc-motor
+  Sources:
+    https://www.youtube.com/watch?v=YVPumD16Y_Y&t=321s
+    https://roboticadiy.com/send-data-from-arduino-to-nodemcu-and-nodemcu-to-arduino-via-serial-communication/
 */
 #include "BluetoothSerial.h"
 
@@ -61,19 +64,23 @@
 BluetoothSerial SerialBT;
 
 #define RXD2 16
-#define TXD2 17
+#define TXD2 0
 
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("ESP32test"); //Bluetooth device name
-  Serial1.begin(115200);
+  SerialBT.begin("ESP32Dino"); //Bluetooth device name
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.println("The device started, now you can pair it with bluetooth!");
 }
 
 void loop() {
+  Serial.println("Send from Serial");
   if (SerialBT.available()) {
-    Serial.write(SerialBT.read());
-    Serial1.println(SerialBT.read());
+    //Serial.write(SerialBT.read());
+    Serial.println("Send msg:");
+    Serial2.println(SerialBT.readString());
+    Serial.println(SerialBT.readString());
   }
+  
   delay(20);
 }

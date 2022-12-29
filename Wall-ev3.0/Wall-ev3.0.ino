@@ -47,21 +47,22 @@
   References:
   http://dronebotworkshop.com
   DC Motor/ L298N - https://arduinogetstarted.com/tutorials/arduino-dc-motor
-  ESP32 & Uno Comm: https://roboticadiy.com/send-data-from-arduino-to-nodemcu-and-nodemcu-to-arduino-via-serial-communication/
+     https://forum.arduino.cc/t/esp32-sending-string-to-arduino-uno/693074
+     https://www.programmingboss.com/2021/04/esp32-arduino-serial-communication-with-code.html
 */
 
 // Include Wire Library for I2C
 #include <Wire.h>
 // Include NewLiquidCrystal Library for I2C
-#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal_I2C.h>
 
 // Define LCD pinout
-const int  en = 2, rw = 1, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
+//const int  en = 2, rw = 1, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
 
 // Define I2C Address - change if reqiuired
-const int i2c_addr = 0x27;
+//const int i2c_addr = 0x27;
 
-LiquidCrystal_I2C lcd(i2c_addr, en, rw, rs, d4, d5, d6, d7, bl, POSITIVE);
+//LiquidCrystal_I2C lcd(i2c_addr, en, rw, rs, d4, d5, d6, d7, bl, POSITIVE);
 
 // connect motor controller pins to Arduino digital pins
 // motor one
@@ -72,173 +73,162 @@ int in2 = 8;
 int enB = 5;
 int in3 = 7;
 int in4 = 6;
+int duration = 1000;
 
 // Enable features
-bool bMovement = false;
+bool bMovement = true;
 bool bLcd = false;
 bool bTracking = false;
 bool bBuzzer = false;
 bool bWifi = false;
 bool bCamera = false;
 
+// Code from bluetooth
+char code = 'F';
+int speed = 255;
+int speedRateVal = 10;
 
-void motorInit() {
-  lcdMsg("Start Car!", 0, 1000);
+void setup() {
+  
+  // inicializar la comunicación serial a 9600 bits por segundo
+  Serial.begin(9600);
+  Serial.setTimeout(5);
+
+  Serial.println("Car initiating!");
+  
+  // Configuramos los pines como salida
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
-  delay(2000);
-  lcd.clear();
 }
 
-void lcdInit() {
-  if (bLcd) {
-    // Set display type as 16 char, 2 rows
-    lcd.begin(16,2);
+void loop() {
+  String valor = "";
   
-    lcdMsg("Love you Cookie!", 0, 1000);
-    lcdMsg("Enjoy the ride", 1, 1000);
+  while (Serial.available() > 0) {
+    String line = Serial.readString();
+    for(int i = 0 ;i < line.length(); i++){
+      int character = line[i];
+      if (isDigit(character)) {
+         valor += (char)character;
+      }else if (character != '\n') {
+          code = character;
+      }else{
+        break;
+      }  
+    }
+  }
   
-    // Clear the display
-    lcd.clear();
+  Serial.println(">>"+String(code)+"<<");
+  switch(code){
+    case 'F': forward(); break;
+    case 'G': backward(); break;
+    case 'R': rightforward(); break;
+    case 'L': leftforward(); break;
+    case 'X': increaseSpeed(); break;
+    case 'Y': decreaseSpeed();break;
+    //case 'S': stop(); break;
+    case 'M':
+      break;
+    case 'N':
+      break;
   }
+  
+  delay(duration);
 }
 
-void lcdMsg(String msg, int line ,int duration) {
-  if (bLcd) {
-    lcd.setCursor(line,0);
-    lcd.print(msg);
-    delay(duration);
-    lcd.clear();
-  }
-   
-  Serial.println(msg);
-}
-
-void forward(int speed, int duration) {
-  lcdMsg("Forward", 0, 1000);
-
-if (bMovement) {
+void backward(){
+    Serial.println("Backward function start");
+    analogWrite(enA, speed);
+    analogWrite(enB, speed);
+    
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enA, speed);
-    
-    // turn on motor B
     digitalWrite(in3, LOW);
     digitalWrite(in4, HIGH);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enB, speed);
-    delay(duration);
-  } else {
-    lcdMsg("Movement Disabled", 0, 2000);
+
+    delay(20);
+
+    Serial.println("backward function Stop");
+}
+
+void forward(){
+  Serial.println("forward function start");
+  analogWrite(enA, speed);
+  analogWrite(enB, speed);
+
+  digitalWrite (in1, HIGH);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, HIGH);
+  digitalWrite (in4, LOW);
+
+  delay(20);
+}
+
+void stop(){
+  Serial.println("Stop function start");
+  analogWrite(enA, 0);
+  analogWrite(enB, 0);
+
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, LOW);
+
+  delay(20);
+}
+
+void leftforward(){
+  Serial.println("Left function start");
+  analogWrite(enA, speed);
+  analogWrite(enB, 0);
+  digitalWrite (in1, HIGH);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, HIGH);
+  digitalWrite (in4, LOW);
+}
+
+void rightforward(){
+  Serial.println("Right function start");
+  analogWrite(enA, 0);
+  analogWrite(enB, speed);
+  digitalWrite (in1, HIGH);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, HIGH);
+  digitalWrite (in4, LOW);
+}
+
+void leftbackward(){
+  Serial.println("Left function start");
+  analogWrite(enA, speed);
+  analogWrite(enB, 0);
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void rightbackward(){
+  Serial.println("Right function start");
+  analogWrite(enA, 0);
+  analogWrite(enB, speed);
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void increaseSpeed() {
+  if (speed < 255) {
+    speed = speed + speedRateVal;
   }
 }
 
-void backward(int speed, int duration) {
-  lcdMsg("Backward", 0, 1000);
-
-  if (bMovement) {
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enA, speed);
-    
-    // turn on motor B
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enB, speed);
-    delay(duration);
-  } else {
-    lcdMsg("Movement Disabled", 0, 2000);
-  }
-}
-
-
-void pause(int duration) {
-  lcdMsg("Pause: " + String(duration) + "ms", 0, 1000);
-
-  if (bMovement) {
-    // turn off motor A
-    digitalWrite(in1, LOW);  
-    digitalWrite(in2, LOW);
-    analogWrite(enA, 0);
-    
-    // turn on motor B
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
-    analogWrite(enB, 0);
-    
-    delay(duration);
-  } else {
-    lcdMsg("Movement Disabled", 0, 2000);
-  }
-}
-
-void left(int speed, int duration) {
-  lcdMsg("Turn Left", 0, 1000);
-
-  if (bMovement) {  
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enA, speed);
-    
-    // turn on motor B
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enB, (speed/2));
-    
-    delay(duration);
-  } else {
-    lcdMsg("Movement Disabled", 0, 2000);
-  }
-}
-
-void right(int speed, int duration) {
-  lcdMsg("Turn Right", 0, 1000);
-
-  if (bMovement) {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enA, (speed/2));
-    
-    // turn on motor B
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
-    // set speed to 200 out of possible range 0~255
-    analogWrite(enB, speed);
-    
-    delay(duration);
-  } else {
-    lcdMsg("Movement Disabled", 0, 2000);
-  }
-}
-
-void setup()
-{
-  // set all the motor control pins to outputs
-  Serial.begin(9600); // Starting Serial Terminal
-  lcdInit();
-  motorInit();
-}
-
-void loop()
-{
-  //forward(255, 2000);
-  //backward(255, 2000);
-  //pause(2000);
-  //right(255, 3000);
-  //left(255, 3000);
-  //delay(1000);
-  if (Serial.available()) {
-    Serial.write(Serial.read());
-    lcdMsg(Serial.read(), 0, 2000);
+void decreaseSpeed() {
+  if (speed > speedRateVal) {
+    speed = speed - speedRateVal;
   }
 }
