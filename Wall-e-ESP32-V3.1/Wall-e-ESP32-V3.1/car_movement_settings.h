@@ -7,9 +7,9 @@ int in2 = 33;
 int enB = 12;
 int in3 = 14;
 int in4 = 27;
-int duration = 1000;
+int duration = 0;
 
 // Car configuration
-char code = 'F';
+char code = 'W';
 int speed = 255;
 int speedRateVal = 10;

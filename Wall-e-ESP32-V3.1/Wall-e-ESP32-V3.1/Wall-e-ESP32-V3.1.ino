@@ -54,6 +54,18 @@
 // Include Wire Library for I2C
 #include <Wire.h>
 
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+#if !defined(CONFIG_BT_SPP_ENABLED)
+#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip.
+#endif
+
+BluetoothSerial SerialBT;
+
 // Include settings of features
 #include "features.h"
 #include "car_movement_settings.h"
@@ -62,7 +74,8 @@
 void setup() {
   delay(1000);
   Serial.begin(9600);
-  Serial.setTimeout(5);
+  SerialBT.begin("ESP32Dino"); //Bluetooth device name
+  Serial.println("The device started, now you can pair it with bluetooth!");
   
   initFeatures();
 }
@@ -70,8 +83,9 @@ void setup() {
 void loop() {
   String valor = "";
   
-  while (Serial.available() > 0) {
-    String line = Serial.readString();
+  while (SerialBT.available() > 0) {
+    String line = SerialBT.readString();
+    Serial.println("Pressed: "+String(line));
     for(int i = 0 ;i < line.length(); i++){
       int character = line[i];
       if (isDigit(character)) {
@@ -84,19 +98,17 @@ void loop() {
     }
   }
   
-  Serial.println(">>"+String(code)+"<<");
+  Serial.println("Existing: "+String(code));
   switch(code){
     case 'F': forward(); break;
     case 'G': backward(); break;
     case 'R': rightforward(); break;
     case 'L': leftforward(); break;
-    case 'X': increaseSpeed(); break;
+    case 'X': stop(); break;
     case 'Y': decreaseSpeed();break;
-    //case 'S': stop(); break;
-    case 'M':
-      break;
-    case 'N':
-      break;
+    case 'S': stop(); break;
+    case 'M': stop(); break;
+    case 'N': stop(); break;
   }
   
   delay(duration);
@@ -153,7 +165,7 @@ void initCarWifi() {
 void initCarCamera() {  
 }
 
-void backward(){
+void forward(){
     Serial.println("Backward function start");
 
     analogWrite(enA, speed);
@@ -163,11 +175,9 @@ void backward(){
     digitalWrite(in2, HIGH);
     digitalWrite(in3, LOW);
     digitalWrite(in4, HIGH);
-
-    delay(20);
 }
 
-void forward(){
+void backward(){
   Serial.println("Forward function start");
 
   analogWrite(enA, speed);
@@ -177,22 +187,18 @@ void forward(){
   digitalWrite (in2, LOW);
   digitalWrite (in3, HIGH);
   digitalWrite (in4, LOW);
-
-  delay(20);
 }
 
 void stop(){
   Serial.println("Stop function start");
 
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
+  analogWrite(enA, 100);
+  analogWrite(enB, 100);
 
   digitalWrite (in1, LOW);
   digitalWrite (in2, LOW);
   digitalWrite (in3, LOW);
   digitalWrite (in4, LOW);
-
-  delay(20);
 }
 
 void leftforward(){
@@ -201,11 +207,10 @@ void leftforward(){
   analogWrite(enA, speed);
   analogWrite(enB, 0);
 
-  digitalWrite (in1, HIGH);
-  digitalWrite (in2, LOW);
-  digitalWrite (in3, HIGH);
-  digitalWrite (in4, LOW);
-  delay(20);
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
 }
 
 void rightforward(){
@@ -214,11 +219,10 @@ void rightforward(){
   analogWrite(enA, 0);
   analogWrite(enB, speed);
   
-  digitalWrite (in1, HIGH);
-  digitalWrite (in2, LOW);
-  digitalWrite (in3, HIGH);
-  digitalWrite (in4, LOW);
-  delay(20);
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
 }
 
 void leftbackward(){
@@ -230,7 +234,6 @@ void leftbackward(){
   digitalWrite (in2, HIGH);
   digitalWrite (in3, LOW);
   digitalWrite (in4, HIGH);
-  delay(20);
 }
 
 void rightbackward(){
@@ -242,7 +245,6 @@ void rightbackward(){
   digitalWrite (in2, HIGH);
   digitalWrite (in3, LOW);
   digitalWrite (in4, HIGH);
-  delay(20);
 }
 
 void increaseSpeed() {

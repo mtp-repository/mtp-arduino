@@ -64,7 +64,7 @@
 BluetoothSerial SerialBT;
 
 #define RXD2 16
-#define TXD2 0
+#define TXD2 17
 
 void setup() {
   Serial.begin(115200);
@@ -74,12 +74,12 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Send from Serial");
   if (SerialBT.available()) {
     //Serial.write(SerialBT.read());
+    String received = SerialBT.readString();
     Serial.println("Send msg:");
-    Serial2.println(SerialBT.readString());
-    Serial.println(SerialBT.readString());
+    Serial2.println(received);
+    Serial.println(received);
   }
   
   delay(20);
