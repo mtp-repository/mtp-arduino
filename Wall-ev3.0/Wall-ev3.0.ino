@@ -13,7 +13,7 @@
     - L298N
     - 4 DC motor
     - 2 18650 battery
-    - 18650 battery shield
+    - 18650 battery shieldEnable features
     - LCD screen
 
     New Components on v3
@@ -53,56 +53,17 @@
 
 // Include Wire Library for I2C
 #include <Wire.h>
-// Include NewLiquidCrystal Library for I2C
-//#include <LiquidCrystal_I2C.h>
 
-// Define LCD pinout
-//const int  en = 2, rw = 1, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
-
-// Define I2C Address - change if reqiuired
-//const int i2c_addr = 0x27;
-
-//LiquidCrystal_I2C lcd(i2c_addr, en, rw, rs, d4, d5, d6, d7, bl, POSITIVE);
-
-// connect motor controller pins to Arduino digital pins
-// motor one
-int enA = 10;
-int in1 = 9;
-int in2 = 8;
-// motor two
-int enB = 5;
-int in3 = 7;
-int in4 = 6;
-int duration = 1000;
-
-// Enable features
-bool bMovement = true;
-bool bLcd = false;
-bool bTracking = false;
-bool bBuzzer = false;
-bool bWifi = false;
-bool bCamera = false;
-
-// Code from bluetooth
-char code = 'F';
-int speed = 255;
-int speedRateVal = 10;
+// Include settings of features
+#include "features.h"
+#include "car_movement_settings.h"
+#include "car_lcd_settings.h"
 
 void setup() {
-  
-  // inicializar la comunicación serial a 9600 bits por segundo
   Serial.begin(9600);
   Serial.setTimeout(5);
-
-  Serial.println("Car initiating!");
   
-  // Configuramos los pines como salida
-  pinMode(enA, OUTPUT);
-  pinMode(enB, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
+  init();
 }
 
 void loop() {
@@ -138,6 +99,57 @@ void loop() {
   }
   
   delay(duration);
+}
+
+void init() {
+  if (WALLE_CAR_MOVEMENT == 1) {
+    initCarMovement();      
+  }
+
+  if (WALLE_CAR_LCD == 1) {
+    initCarLcd();      
+  }
+
+  if (WALLE_CAR_TRACKING == 1) {
+    initCarTracking();      
+  }
+
+  if (WALLE_CAR_BUZZER == 1) {
+    initCarBuzzer();      
+  }
+
+  if (WALLE_CAR_WIFI == 1) {
+    initCarWifi();      
+  }
+
+  if (WALLE_CAR_CAMERA == 1) {
+    initCarCamera();      
+  }
+}
+
+void initCarMovement() {
+  Serial.println("Car Movement initiating!");
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+}
+
+void initCarLcd() {  
+}
+
+void initCarTracking() {  
+}
+
+void initCarBuzzer() {  
+}
+
+void initCarWifi() {  
+}
+
+void initCarCamera() {  
 }
 
 void backward(){
