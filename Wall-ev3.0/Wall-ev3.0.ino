@@ -154,6 +154,7 @@ void initCarCamera() {
 
 void backward(){
     Serial.println("Backward function start");
+
     analogWrite(enA, speed);
     analogWrite(enB, speed);
     
@@ -163,12 +164,11 @@ void backward(){
     digitalWrite(in4, HIGH);
 
     delay(20);
-
-    Serial.println("backward function Stop");
 }
 
 void forward(){
-  Serial.println("forward function start");
+  Serial.println("Forward function start");
+
   analogWrite(enA, speed);
   analogWrite(enB, speed);
 
@@ -182,6 +182,7 @@ void forward(){
 
 void stop(){
   Serial.println("Stop function start");
+
   analogWrite(enA, 0);
   analogWrite(enB, 0);
 
@@ -194,43 +195,53 @@ void stop(){
 }
 
 void leftforward(){
-  Serial.println("Left function start");
+  Serial.println("Left-forward function start");
+  
   analogWrite(enA, speed);
   analogWrite(enB, 0);
+
   digitalWrite (in1, HIGH);
   digitalWrite (in2, LOW);
   digitalWrite (in3, HIGH);
   digitalWrite (in4, LOW);
+  delay(20);
 }
 
 void rightforward(){
-  Serial.println("Right function start");
+  Serial.println("Right-forward function start");
+
   analogWrite(enA, 0);
   analogWrite(enB, speed);
+  
   digitalWrite (in1, HIGH);
   digitalWrite (in2, LOW);
   digitalWrite (in3, HIGH);
   digitalWrite (in4, LOW);
+  delay(20);
 }
 
 void leftbackward(){
-  Serial.println("Left function start");
+  Serial.println("Left-backward function start");
   analogWrite(enA, speed);
   analogWrite(enB, 0);
+
   digitalWrite (in1, LOW);
   digitalWrite (in2, HIGH);
   digitalWrite (in3, LOW);
   digitalWrite (in4, HIGH);
+  delay(20);
 }
 
 void rightbackward(){
-  Serial.println("Right function start");
+  Serial.println("Right-backward function start");
   analogWrite(enA, 0);
+
   analogWrite(enB, speed);
   digitalWrite (in1, LOW);
   digitalWrite (in2, HIGH);
   digitalWrite (in3, LOW);
   digitalWrite (in4, HIGH);
+  delay(20);
 }
 
 void increaseSpeed() {
