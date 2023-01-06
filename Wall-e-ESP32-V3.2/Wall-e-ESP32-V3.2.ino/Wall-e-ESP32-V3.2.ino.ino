@@ -1,113 +1,243 @@
-/*
- WiFi Web Server LED Blink
+/*********
+  Rui Santos
+  Complete project details at https://randomnerdtutorials.com  
+*********/
 
- A simple web server that lets you blink an LED via the web.
- This sketch will print the IP address of your WiFi Shield (once connected)
- to the Serial monitor. From there, you can open that address in a web browser
- to turn on and off the LED on pin 5.
-
- If the IP address of your shield is yourAddress:
- http://yourAddress/H turns the LED on
- http://yourAddress/L turns it off
-
- This example is written for a network using WPA2 encryption. For insecure
- WEP or WPA, change the Wifi.begin() call and use Wifi.setMinSecurity() accordingly.
-
- Circuit:
- * WiFi shield attached
- * LED attached to pin 5
-
- created for arduino 25 Nov 2012
- by Tom Igoe
-
-ported for sparkfun esp32 
-31.01.2017 by Jan Hendrik Berlin
- 
- */
+// Load Wi-Fi library
 #include <WiFi.h>
 
-const char* ssid     = "yourssid";
-const char* password = "yourpasswd";
+// Replace with your network credentials
+const char* ssid = "Cookie_Asus";
+const char* password = "dinnohoney678";
 
+// Set web server port number to 80
 WiFiServer server(80);
 
-void setup()
-{
-    Serial.begin(115200);
-    pinMode(5, OUTPUT);      // set the LED pin mode
+// Variable to store the HTTP request
+String header;
+int currentLoop = 0;
+int myTimeOut = 0;
 
-    delay(10);
+// Include settings of features
+#include "car_movement_settings.h"
 
-    // We start by connecting to a WiFi network
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Car Movement initiating!");
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
 
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println("");
-    Serial.println("WiFi connected.");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-    
-    server.begin();
-
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.setTimeout(myTimeOut);
+  server.begin();  
 }
 
-void loop(){
- WiFiClient client = server.available();   // listen for incoming clients
+void loop(){ 
+  WiFiClient client = server.available();   // Listen for incoming clients  
+  client.setTimeout(myTimeOut);
 
-  if (client) {                             // if you get a client,
-    Serial.println("New Client.");           // print a message out the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n') {                    // if the byte is a newline character
-
+  if (currentLoop == 0) {
+    // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+    // and a content-type so the client knows what's coming, then a blank line:
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    client.println("Connection: close");
+    client.println();
+  }
+  
+  if (client) {                             // If a new client connects,
+    while (client.available()) {  // loop while the client's connected      
+        Serial.println("test1");
+        String c = client.readString();        // read a byte, then
+        Serial.println("test2");
+        //Serial.println(c);                    // print it out the serial monitor
+        Serial.println("test3");
+        header = c;
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
+          if (header.indexOf("GET /F") >= 0) {
+              forward();
+            } else if (header.indexOf("GET /G") >= 0) {
+              backward();
+            } else if (header.indexOf("GET /R") >= 0) {
+              rightforward();
+            } else if (header.indexOf("GET /L") >= 0) {
+              leftforward();
+            } else if (header.indexOf("GET /S") >= 0) {
+              stop();
+            } else if (header.indexOf("GET /U") >= 0) {
+              increaseSpeed();
+            } else if (header.indexOf("GET /D") >= 0) {
+              decreaseSpeed();
+            } else if (header.indexOf("GET /K") >= 0) {
+              stop();
+            }
 
-            // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 5 on.<br>");
-            client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 5 off.<br>");
+          if (currentLoop == 0) {
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+            // CSS to style the on/off buttons 
+            // Feel free to change the background-color and font-size attributes to fit your preferences
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #555555;}</style></head>");
+            
+            // Web Page Heading
+            client.println("<body><h1>ESP32 Wifi Car Controller</h1>");
 
-            // The HTTP response ends with another blank line:
+            
+            // Move Buttons
+            client.println("<div style=\"display:inline-block\"><table>");
+            client.println("<tr>");
+            client.println("<td rowspan=2><a href=\"/L\"><button class=\"button\">&#8592;</button></a></td>");
+            client.println("<td><a href=\"/F\"><button class=\"button\">&#8593;</button></a></td>");
+            client.println("<td rowspan=2><a href=\"/R\"><button class=\"button\">&#8594;</button></a></td>");
+            client.println("</tr>");
+
+            client.println("<tr>");
+            client.println("<td><a href=\"/G\"><button class=\"button\">&#8595;</button></a></td>");
+            client.println("</tr>");
+            client.println("</table></div>");
+
+            // Option Button
+            client.println("<div style=\"display:inline-block\"><table>");
+            client.println("<tr>");
+            client.println("<td rowspan=2><a href=\"/S\"><button class=\"button\" style=\"border-radius: 50px\">S</button></a></td>");
+            client.println("<td><a href=\"/U\"><button class=\"button\" style=\"border-radius: 50px\">U</button></a></td>");
+            client.println("<td rowspan=2><a href=\"/K\"><button class=\"button\" style=\"border-radius: 50px\">K</button></a></td>");
+            client.println("</tr>");
+
+            client.println("<tr>");
+            client.println("<td><a href=\"/D\"><button class=\"button\" style=\"border-radius: 50px\">D</button></a></td>");
+            client.println("</tr>");
+            client.println("</table></div>");
+            
+            client.println("</body></html>");
+            
+            // The HTTP response ends with another blank line
             client.println();
-            // break out of the while loop:
+            // Break out of the while loop
             break;
-          } else {    // if you got a newline, then clear currentLine:
-            currentLine = "";
+          } else { // if you got a newline, then clear currentLine
+            currentLoop += 1;
           }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
-
-        // Check to see if the client request was "GET /H" or "GET /L":
-        if (currentLine.endsWith("GET /H")) {
-          digitalWrite(5, HIGH);               // GET /H turns the LED on
-        }
-        if (currentLine.endsWith("GET /L")) {
-          digitalWrite(5, LOW);                // GET /L turns the LED off
-        }
-      }
     }
-    // close the connection:
-    client.stop();
-    Serial.println("Client Disconnected.");
+    // Clear the header variable
+    header = "";
+  }
+}
+
+void forward(){
+  Serial.println("Forward");
+
+  analogWrite(enA, speed);
+  analogWrite(enB, speed);
+  
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+}
+
+void backward(){
+  Serial.println("Back");
+
+  analogWrite(enA, speed);
+  analogWrite(enB, speed);
+
+  digitalWrite (in1, HIGH);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, HIGH);
+  digitalWrite (in4, LOW);
+}
+
+void stop(){
+  Serial.println("Stop");
+
+  analogWrite(enA, 100);
+  analogWrite(enB, 100);
+
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, LOW);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, LOW);
+}
+
+void leftforward(){
+  Serial.println("Left-forward");
+  
+  analogWrite(enA, speed);
+  analogWrite(enB, 0);
+
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void rightforward(){
+  Serial.println("Right-forward");
+
+  analogWrite(enA, 0);
+  analogWrite(enB, speed);
+  
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void leftbackward(){
+  Serial.println("Left-backward");
+  analogWrite(enA, speed);
+  analogWrite(enB, 0);
+
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void rightbackward(){
+  Serial.println("Right-backward");
+  analogWrite(enA, 0);
+
+  analogWrite(enB, speed);
+  digitalWrite (in1, LOW);
+  digitalWrite (in2, HIGH);
+  digitalWrite (in3, LOW);
+  digitalWrite (in4, HIGH);
+}
+
+void increaseSpeed() {
+  Serial.println("Speed Up");
+  if (speed < 255) {
+    speed = speed + speedRateVal;
+  }
+}
+
+void decreaseSpeed() {
+  Serial.println("Speed Down");
+  if (speed > speedRateVal) {
+    speed = speed - speedRateVal;
   }
 }

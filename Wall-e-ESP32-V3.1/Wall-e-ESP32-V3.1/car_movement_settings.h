@@ -9,7 +9,10 @@ int in3 = 14;
 int in4 = 27;
 int duration = 0;
 
-// Car configuration
+// Car Config
 char code = 'W';
 int speed = 255;
 int speedRateVal = 10;
+
+// Controller Config
+String controller = "BlueControl";

@@ -99,17 +99,32 @@ void loop() {
   }
   
   Serial.println("Existing: "+String(code));
-  switch(code){
-    case 'F': forward(); break;
-    case 'G': backward(); break;
-    case 'R': rightforward(); break;
-    case 'L': leftforward(); break;
-    case 'X': stop(); break;
-    case 'Y': decreaseSpeed();break;
-    case 'S': stop(); break;
-    case 'M': stop(); break;
-    case 'N': stop(); break;
+  if (controller == "ArduinoCar") {
+    switch(code){
+      case 'F': forward(); break;
+      case 'G': backward(); break;
+      case 'R': rightforward(); break;
+      case 'L': leftforward(); break;
+      case 'X': increaseSpeed(); break;
+      case 'Y': decreaseSpeed();break;
+      case 'S': stop(); break;
+      case 'M': stop(); break;
+      case 'N': stop(); break;
+    }
+  } else if (controller == "BlueControl") {
+    switch(code){
+      case 'F': forward(); break;
+      case 'G': backward(); break;
+      case 'R': rightforward(); break;
+      case 'L': leftforward(); break;
+      case 'X': increaseSpeed(); break;
+      case 'Y': decreaseSpeed();break;
+      case 'S': stop(); break;
+      case 'M': stop(); break;
+      case 'N': stop(); break;
+    }
   }
+  
   
   delay(duration);
 }
@@ -166,7 +181,7 @@ void initCarCamera() {
 }
 
 void forward(){
-    Serial.println("Backward function start");
+    Serial.println("Forward function start");
 
     analogWrite(enA, speed);
     analogWrite(enB, speed);
@@ -178,7 +193,7 @@ void forward(){
 }
 
 void backward(){
-  Serial.println("Forward function start");
+  Serial.println("Back function start");
 
   analogWrite(enA, speed);
   analogWrite(enB, speed);
