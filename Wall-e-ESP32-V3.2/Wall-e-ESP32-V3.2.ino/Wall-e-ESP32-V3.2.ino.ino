@@ -55,6 +55,7 @@ void loop(){
   if (currentLoop == 0) {
     // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
     // and a content-type so the client knows what's coming, then a blank line:
+    Serial.println("testx " + String(currentLoop));
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type:text/html");
     client.println("Connection: close");
@@ -63,7 +64,7 @@ void loop(){
   
   if (client) {                             // If a new client connects,
     while (client.available()) {  // loop while the client's connected      
-        Serial.println("test1");
+        Serial.println("test " + String(currentLoop));
         String c = client.readString();        // read a byte, then
         Serial.println("test2");
         //Serial.println(c);                    // print it out the serial monitor
@@ -89,7 +90,6 @@ void loop(){
               stop();
             }
 
-          if (currentLoop == 0) {
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -137,10 +137,8 @@ void loop(){
             client.println();
             // Break out of the while loop
             break;
-          } else { // if you got a newline, then clear currentLine
-            currentLoop += 1;
-          }
     }
+    currentLoop += 1;
     // Clear the header variable
     header = "";
   }
