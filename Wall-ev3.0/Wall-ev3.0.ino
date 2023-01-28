@@ -84,7 +84,7 @@ bool bWifi = false;
 bool bCamera = false;
 
 // Code from bluetooth
-char code = 'F';
+char code = '';
 int speed = 255;
 int speedRateVal = 10;
 
